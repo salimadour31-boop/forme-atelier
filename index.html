@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forme Atelier — générateur de formes organiques et de fonds SVG</title>
+  <meta name="description" content="Générateur gratuit et libre de blobs, vagues, vagues en couches, courbes topographiques, scènes, low-poly et sommets en SVG. Export SVG, PNG, CSS, JSON et lien de partage. Tout reste sur votre appareil.">
+  <meta name="theme-color" content="#5b3df5">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Apply the saved (or system) theme before first paint to avoid a flash.
+    try { const t = localStorage.getItem('forme-atelier:theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#stage" data-i18n="skip"></a>
+
+  <!-- ===================================================== header -->
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="40" height="40">
+      <div>
+        <h1>Forme Atelier <span class="tf" lang="kab-Tfng" aria-hidden="true">ⵜⴰⵍⵖⴰ</span></h1>
+        <p data-i18n="tagline"></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="sr" for="lang" data-i18n="language"></label>
+      <select id="lang">
+        <option value="fr">Français</option><option value="en">English</option><option value="kab">Taqbaylit</option>
+      </select>
+      <label class="check" id="tfngWrap" hidden><input type="checkbox" id="tfng"> <span data-i18n="tifinagh"></span> ⵣ</label>
+      <button class="btn icon" id="themeBtn" type="button" data-i18n-attr="aria-label:uiTheme;title:uiTheme">◐</button>
+      <button class="btn icon" id="helpBtn" type="button" data-i18n-attr="aria-label:help;title:help">?</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ===================================================== work area -->
+    <section class="work">
+      <fieldset class="gens" id="gens">
+        <legend class="sr" data-i18n="generator"></legend>
+        <!-- filled by app.js from SHAPES.TYPES -->
+      </fieldset>
+      <p class="gen-desc mute" id="genDesc"></p>
+
+      <div class="stagewrap" id="stagewrap">
+        <div class="stage" id="stage" tabindex="-1" role="img" data-i18n-attr="aria-label:stageLabel"></div>
+      </div>
+
+      <div class="bar">
+        <button class="btn primary" id="newBtn" type="button" data-i18n-attr="title:newShapeHint"><span aria-hidden="true">⟳</span> <span data-i18n="newShape"></span></button>
+        <div class="seedbox">
+          <label for="seed" data-i18n="seed"></label>
+          <input id="seed" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="24">
+          <button class="btn icon" id="lockBtn" type="button" aria-pressed="false" data-i18n-attr="aria-label:lockSeed;title:lockSeed"><span aria-hidden="true">🔓</span></button>
+        </div>
+        <button class="btn" id="surpriseBtn" type="button" data-i18n-attr="title:surpriseHint"><span aria-hidden="true">✦</span> <span data-i18n="surprise"></span></button>
+        <span class="grow"></span>
+        <button class="btn icon" id="undoBtn" type="button" data-i18n-attr="aria-label:undo;title:undo"><span aria-hidden="true">↶</span></button>
+        <button class="btn icon" id="redoBtn" type="button" data-i18n-attr="aria-label:redo;title:redo"><span aria-hidden="true">↷</span></button>
+        <button class="btn icon" id="favBtn" type="button" data-i18n-attr="aria-label:addFav;title:addFav"><span aria-hidden="true">★</span></button>
+      </div>
+      <p class="stats mute" id="stats" aria-live="polite"></p>
+    </section>
+
+    <!-- ===================================================== settings panel -->
+    <aside class="panel" id="panel">
+      <details open id="secShape">
+        <summary data-i18n="secShape"></summary>
+        <div id="params" class="params"></div>
+      </details>
+
+      <details open id="secColors">
+        <summary data-i18n="secColors"></summary>
+        <div class="field">
+          <span class="lbl" id="palLbl" data-i18n="palette"></span>
+          <div class="swatches" id="swatches" role="group" aria-labelledby="palLbl"></div>
+        </div>
+        <div class="row">
+          <label class="sr" for="palPreset" data-i18n="presetPalette"></label>
+          <select id="palPreset" class="grow"></select>
+          <button class="btn small" id="palRandom" type="button" data-i18n="randomPalette"></button>
+          <button class="btn small" id="palReverse" type="button" data-i18n="reversePalette"></button>
+        </div>
+        <div class="field">
+          <span class="lbl" id="fillLbl" data-i18n="fillMode"></span>
+          <div class="seg wide" role="radiogroup" aria-labelledby="fillLbl" id="fillSeg"></div>
+        </div>
+        <div class="field" id="angleField">
+          <label for="angle"><span data-i18n="gradAngle"></span> <output for="angle" id="angleOut"></output></label>
+          <input id="angle" type="range" min="0" max="360" step="5">
+        </div>
+        <label class="check"><input type="checkbox" id="strokeOn"> <span data-i18n="strokeOn"></span></label>
+        <div class="row" id="strokeRow">
+          <label class="color"><input type="color" id="strokeColor"> <span data-i18n="strokeColor"></span></label>
+          <div class="field grow">
+            <label for="strokeWidth"><span data-i18n="strokeWidth"></span> <output for="strokeWidth" id="strokeWidthOut"></output></label>
+            <input id="strokeWidth" type="range" min="0.5" max="40" step="0.5">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="bgOn"> <span data-i18n="bgOn"></span></label>
+        <div class="row"><label class="color"><input type="color" id="bg"> <span data-i18n="bgColor"></span></label></div>
+        <p class="warn" id="warn" hidden data-i18n="warnNothing"></p>
+      </details>
+
+      <details open id="secCanvas">
+        <summary data-i18n="secCanvas"></summary>
+        <div class="field">
+          <label for="sizePreset" data-i18n="sizePreset"></label>
+          <select id="sizePreset"></select>
+        </div>
+        <div class="row dims">
+          <div class="field"><label for="w" data-i18n="width"></label><input id="w" type="number" min="16" max="8000" step="1"></div>
+          <button class="btn icon" id="swapBtn" type="button" data-i18n-attr="aria-label:swapDims;title:swapDims"><span aria-hidden="true">⇄</span></button>
+          <div class="field"><label for="h" data-i18n="height"></label><input id="h" type="number" min="16" max="8000" step="1"></div>
+        </div>
+        <div class="field">
+          <span class="lbl" id="rotLbl" data-i18n="rotation"></span>
+          <div class="seg wide" role="radiogroup" aria-labelledby="rotLbl" id="rotSeg"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="flipX"> <span data-i18n="flipX"></span></label>
+        <label class="check"><input type="checkbox" id="flipY"> <span data-i18n="flipY"></span></label>
+      </details>
+
+      <details open id="secExport">
+        <summary data-i18n="secExport"></summary>
+        <div class="grid2">
+          <button class="btn primary" id="dlSvg" type="button" data-i18n="dlSVG"></button>
+          <button class="btn" id="copySvg" type="button" data-i18n="copySVG"></button>
+        </div>
+        <div class="row">
+          <span class="lbl" id="scaleLbl" data-i18n="pngScale"></span>
+          <div class="seg" role="radiogroup" aria-labelledby="scaleLbl" id="scaleSeg"></div>
+          <button class="btn grow" id="dlPng" type="button" data-i18n="dlPNG"></button>
+        </div>
+        <p class="mute small" id="pngInfo"></p>
+        <div class="grid2">
+          <button class="btn" id="copyCss" type="button" data-i18n="copyCSS"></button>
+          <button class="btn" id="copyLink" type="button" data-i18n="copyLink"></button>
+          <button class="btn" id="dlJson" type="button" data-i18n="dlJSON"></button>
+          <label class="btn filebtn"><span data-i18n="importJSON"></span><input type="file" id="importJson" accept="application/json,.json"></label>
+        </div>
+        <div class="field" id="codeWrap" hidden>
+          <label for="code" data-i18n="codeOut"></label>
+          <textarea id="code" rows="5" readonly spellcheck="false"></textarea>
+        </div>
+      </details>
+
+      <details open id="secFavs">
+        <summary data-i18n="secFavs"></summary>
+        <button class="btn" id="saveFav" type="button"><span aria-hidden="true">★</span> <span data-i18n="saveFav"></span></button>
+        <p class="mute small" id="favEmpty" data-i18n="favEmpty"></p>
+        <ul class="favs" id="favs"></ul>
+      </details>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span data-i18n="footer"></span>
+    · <a href="https://github.com/salimadour31-boop/forme-atelier" rel="noopener"><span data-i18n="source"></span></a>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="helpDlg" aria-labelledby="helpTitle">
+    <div class="dlg-head"><h2 id="helpTitle" data-i18n="helpTitle"></h2>
+      <button class="btn icon" id="helpClose" type="button" data-i18n-attr="aria-label:close;title:close">✕</button></div>
+    <div id="helpBody" class="help"></div>
+  </dialog>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/shapes.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
